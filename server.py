@@ -1,127 +1,77 @@
 from flask import Flask, request, jsonify, render_template
-import tensorflow as tf
-import tensorflow_hub as hub
 import numpy as np
 import cv2
 import base64
-import io
+import sqlite3
+from inference_sdk import InferenceHTTPClient
 
 app = Flask(__name__)
 
-# Load the COCO-SSD model from TensorFlow Hub
-model = hub.load("https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2")
+# Initialize the Inference SDK Client for Roboflow
+CLIENT = InferenceHTTPClient(
+    api_url="https://detect.roboflow.com",
+    api_key="wweQ6FzDKYe2XY0XlF3m"  # Your API key
+)
 
-# Trash item IDs mapping
-trash_item_ids = {
-    44: "bottle",
-    46: "wine glass",
-    47: "cup",
-    48: "fork",
-    49: "knife",
-    50: "spoon",
-    51: "bowl",
-    52: "banana",
-    53: "apple",
-    54: "sandwich",
-    55: "orange",
-    56: "broccoli",
-    57: "carrot",
-    58: "hot dog",
-    59: "pizza",
-    60: "donut",
-    61: "cake",
-    62: "chair",
-    63: "couch",
-    64: "potted plant",
-    65: "bed",
-    67: "dining table",
-    70: "toilet",
-    72: "tv",
-    73: "laptop",
-    74: "mouse",
-    75: "remote",
-    76: "keyboard",
-    77: "cell phone",
-    78: "microwave",
-    79: "oven",
-    80: "toaster",
-    81: "sink",
-    82: "refrigerator",
-    84: "book",
-    85: "clock",
-    86: "vase",
-    87: "scissors",
-    88: "teddy bear",
-    89: "hair drier",
-    90: "toothbrush",
-}
+# Model ID for your new model on Roboflow
+MODEL_ID = "yolov8-trash-detections/6"  # Your updated model ID and version
 
-# Define the waste categories mapping
-waste_categories = {
-    "bottle": "dry",
-    "wine glass": "dry",
-    "cup": "dry",
-    "fork": "dry",
-    "knife": "dry",
-    "spoon": "dry",
-    "bowl": "dry",
-    "banana": "wet",
-    "apple": "wet",
-    "sandwich": "wet",
-    "orange": "wet",
-    "broccoli": "wet",
-    "carrot": "wet",
-    "hot dog": "wet",
-    "pizza": "wet",
-    "donut": "wet",
-    "cake": "wet",
-    "chair": "dry",
-    "couch": "dry",
-    "potted plant": "wet",
-    "bed": "dry",
-    "dining table": "dry",
-    "toilet": "dry",
-    "tv": "e-waste",
-    "laptop": "e-waste",
-    "mouse": "e-waste",
-    "remote": "e-waste",
-    "keyboard": "e-waste",
-    "cell phone": "e-waste",
-    "microwave": "e-waste",
-    "oven": "e-waste",
-    "toaster": "e-waste",
-    "sink": "e-waste",
-    "refrigerator": "e-waste",
-    "book": "dry",
-    "clock": "e-waste",
-    "vase": "dry",
-    "scissors": "dry",
-    "teddy bear": "dry",
-    "hair drier": "e-waste",
-    "toothbrush": "dry",
-}
+# Initialize the database
+def init_db():
+    conn = sqlite3.connect('trash_data.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trash_counts (
+            trash_type TEXT PRIMARY KEY,
+            count INTEGER
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-# Object detection function using COCO-SSD
+# Store counts in the database
+def store_trash_counts(trash_counts):
+    conn = sqlite3.connect('trash_data.db')
+    cursor = conn.cursor()
+    for trash_type, count in trash_counts.items():
+        # Check if the trash_type already exists
+        cursor.execute('SELECT count FROM trash_counts WHERE trash_type = ?', (trash_type,))
+        row = cursor.fetchone()
+        if row:
+            # Update existing count
+            new_count = row[0] + count
+            cursor.execute('UPDATE trash_counts SET count = ? WHERE trash_type = ?', (new_count, trash_type))
+        else:
+            # Insert new trash_type
+            cursor.execute('INSERT INTO trash_counts (trash_type, count) VALUES (?, ?)', (trash_type, count))
+    conn.commit()
+    conn.close()
+
+# Object detection function using Roboflow Inference SDK
 def detect_trash(image):
-    # Convert the image to a tensor and prepare it for model input
-    input_tensor = tf.convert_to_tensor(image)
-    input_tensor = input_tensor[tf.newaxis, ...]
-    detections = model(input_tensor)
+    # Save the image temporarily
+    temp_image_path = "temp_image.jpg"
+    cv2.imwrite(temp_image_path, image)
 
-    # Loop through detected objects and filter for relevant trash items
-    detected_trash = []
+    try:
+        # Perform inference using the Roboflow client with the new model ID
+        result = CLIENT.infer(temp_image_path, model_id=MODEL_ID)
 
-    for i in range(detections['detection_boxes'].shape[1]):
-        class_id = int(detections['detection_classes'][0][i])
-        score = detections['detection_scores'][0][i].numpy()
+        # Initialize counts dictionary
+        counts = {}
 
-        # Check if the detected item is a trash item and has a high confidence score
-        if score > 0.5 and class_id in trash_item_ids:
-            item_name = trash_item_ids[class_id]
-            waste_type = waste_categories.get(item_name, "unknown")
-            detected_trash.append((item_name, waste_type))
+        # Process detections
+        if 'predictions' in result:
+            for prediction in result['predictions']:
+                class_name = prediction['class']
+                counts[class_name] = counts.get(class_name, 0) + 1
 
-    return detected_trash
+        return counts
+
+    except Exception as e:
+        # Log the error and handle gracefully
+        print("Error during inference:", e)
+        return {}  # Return an empty dictionary if an error occurs
 
 @app.route('/process_frame', methods=['POST'])
 def process_frame():
@@ -137,20 +87,33 @@ def process_frame():
     image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
     # Detect trash in the image
-    trash_items = detect_trash(image)
+    trash_counts = detect_trash(image)
 
-    if trash_items:
-        # Collect the waste types
-        waste_types = set(waste_type for _, waste_type in trash_items)
+    if trash_counts:
         # Prepare the suggestion based on waste types
-        suggestion = "Please dispose of in the following bins: " + ", ".join(waste_types)
-        # Prepare the trash items string
-        trash_type = ", ".join(item_name for item_name, _ in trash_items)
+        waste_types = set(trash_counts.keys())
+        suggestion = "Please dispose of the following items: " + ", ".join(waste_types)
+        # Prepare the trash items string with counts
+        trash_type = ", ".join(f"{item_name} x{count}" for item_name, count in trash_counts.items())
     else:
         trash_type = "No identifiable trash items detected."
         suggestion = "No disposal needed."
 
+    # Store counts in the database
+    store_trash_counts(trash_counts)
+
     return jsonify({"trash_type": trash_type, "suggestion": suggestion})
+
+@app.route('/get_trash_counts', methods=['GET'])
+def get_trash_counts():
+    conn = sqlite3.connect('trash_data.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT trash_type, count FROM trash_counts')
+    rows = cursor.fetchall()
+    conn.close()
+
+    trash_counts = {trash_type: count for trash_type, count in rows}
+    return jsonify(trash_counts)
 
 @app.route('/')
 def index():
@@ -158,4 +121,5 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True)
