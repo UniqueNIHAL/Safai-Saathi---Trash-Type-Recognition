@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Trash Recognition</title>
+</head>
+<body>
+    <h1>Real-Time Trash Recognition</h1>
+    <video id="video" autoplay playsinline></video>
+    <p id="result"></p>
+
+    <script>
+        const video = document.getElementById('video');
+        const resultDisplay = document.getElementById('result');
+
+        // Access the device camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                console.error("Camera access denied:", error);
+            }
+        }
+
+        // Capture frame and send it to the server
+        async function captureFrame() {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL("image/jpeg");
+
+            // Send frame to server
+            const response = await fetch('/process_frame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            });
+            const result = await response.json();
+
+            // Display the result
+            resultDisplay.innerHTML = `
+                <h3>Trash Type: ${result.trash_type}</h3>
+                <p>Suggestion: ${result.suggestion}</p>
+            `;
+        }
+
+        // Start the camera and process frames at intervals
+        startCamera();
+        setInterval(captureFrame, 2000);  // Capture a frame every 2 seconds
+    </script>
+</body>
+</html>
