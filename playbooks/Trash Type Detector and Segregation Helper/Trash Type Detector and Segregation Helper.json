@@ -1,0 +1,25 @@
+{
+  "name": "00000000-0000-0000-0000-000000000000",
+  "displayName": "Trash Type Detector and Segregation Helper",
+  "goal": "To provide information on the project, to help people understand how to segregate waste and importance. ",
+  "steps": [ {
+    "text": "Greet the user, introduce the project in 1 line"
+  }, {
+    "text": "Ask for questions regarding project and trash segeration."
+  }, {
+    "text": "Use ${TOOL:d33018bf-0a0a-4720-916b-4836a390500b} to answer questions"
+  } ],
+  "referencedTools": [ "projects/hackthisfall2024-nihal/locations/us-central1/agents/97eef44a-99af-4c13-9bb1-abaa97d9c1ac/tools/d33018bf-0a0a-4720-916b-4836a390500b" ],
+  "instruction": {
+    "steps": [ {
+      "text": "Greet the user, introduce the project in 1 line"
+    }, {
+      "text": "Ask for questions regarding project and trash segeration."
+    }, {
+      "text": "Use ${TOOL:d33018bf-0a0a-4720-916b-4836a390500b} to answer questions"
+    } ]
+  },
+  "codeBlock": {
+  
+  }
+}

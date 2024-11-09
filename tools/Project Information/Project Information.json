@@ -1,0 +1,40 @@
+{
+  "name": "d33018bf-0a0a-4720-916b-4836a390500b",
+  "displayName": "Project Information",
+  "description": "Contains information about the project as well as information on trash segregation and project alignment to UN SDG and Swach Bharat.",
+  "dataStoreSpec": {
+    "dataStoreConnections": [ {
+      "dataStoreType": "UNSTRUCTURED",
+      "dataStore": "projects/796296593098/locations/us/collections/default_collection/dataStores/project-information-and-trash-segregations-inform_1731178675766",
+      "documentProcessingMode": "CHUNKS"
+    } ],
+    "models": {
+      "summarizationModel": {
+      
+      }
+    },
+    "fallbackPrompt": {
+    
+    },
+    "groundingSettings": {
+      "groundingConfidence": "VERY_LOW",
+      "disabled": true
+    },
+    "payloadSettings": {
+    
+    }
+  },
+  "actionSchemas": [ {
+    "name": "Project Information",
+    "inputParameters": [ {
+      "name": "requestBody",
+      "schema": "{\n  \"required\" : [ \"query\" ],\n  \"type\" : \"object\",\n  \"properties\" : {\n    \"query\" : {\n      \"type\" : \"string\",\n      \"description\" : \"Query for the data store search\"\n    },\n    \"filter\" : {\n      \"type\" : \"string\",\n      \"description\" : \"Filter expression to enhance data store search results.\"\n    },\n    \"userMetadata\" : {\n      \"type\" : \"object\",\n      \"description\" : \"Optional key/value pairs with metadata about the user to refine the data store search query.\"\n    },\n    \"fallback\" : {\n      \"type\" : \"string\",\n      \"description\" : \"Response to provide when no answer is provided by the data store.\"\n    }\n  }\n}",
+      "required": true
+    } ],
+    "outputParameters": [ {
+      "name": "200",
+      "schema": "{\n  \"type\" : \"object\",\n  \"properties\" : {\n    \"answer\" : {\n      \"type\" : \"string\",\n      \"description\" : \"Answer with the highest match confidence\"\n    },\n    \"snippets\" : {\n      \"type\" : \"array\",\n      \"description\" : \"Snippets used to derive the answer\",\n      \"items\" : {\n        \"type\" : \"object\",\n        \"properties\" : {\n          \"uri\" : {\n            \"type\" : \"string\",\n            \"description\" : \"URI of the source used to derive the answer\"\n          },\n          \"text\" : {\n            \"type\" : \"string\",\n            \"description\" : \"Source text used to derive the answer\"\n          },\n          \"title\" : {\n            \"type\" : \"string\",\n            \"description\" : \"Title of the source used to derive the answer\"\n          }\n        }\n      }\n    }\n  }\n}"
+    } ]
+  } ],
+  "toolType": "CUSTOMIZED_TOOL"
+}

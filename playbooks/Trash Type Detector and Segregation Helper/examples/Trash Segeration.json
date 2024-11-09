@@ -1,0 +1,29 @@
+{
+  "name": "a66b52a3-686d-49a4-b821-5911f4ad418a",
+  "actions": [ {
+    "userUtterance": {
+      "text": "How do I segergrate trash better"
+    }
+  }, {
+    "agentUtterance": {
+      "text": "Hi there! I'd be happy to help you with that. Do you have any specific questions about trash segregation?"
+    }
+  }, {
+    "userUtterance": {
+      "text": "How do I segergrate trash better"
+    }
+  }, {
+    "agentUtterance": {
+      "text": "Hi there! I'd be happy to help you with that. Do you have any specific questions about trash segregation?"
+    }
+  } ],
+  "playbookOutput": {
+    "executionSummary": "1. **Know Your Waste Categories:**\n   - **Recyclable Waste:** Paper, cardboard, glass bottles, metal cans, certain plastics.\n   - **Organic Waste:** Food scraps, yard waste, compostable materials.\n   - **Hazardous Waste:** Batteries, paints, chemicals, electronic waste.\n   - **General Waste:** Non-recyclable and non-hazardous materials.\n\n2. **Use Separate Bins:**\n   - Provide clearly labeled bins for each waste category.\n   - Use color-coded bins to make identification easier (e.g., blue for recyclables, green for organics).\n\n3. **Clean Recyclables:**\n   - Rinse containers to remove food residues, which can contaminate recycling batches.\n\n4. **Educate Household Members:**\n   - Ensure everyone understands how to segregate waste properly.\n   - Display posters or guides near waste disposal areas as reminders.\n\n5. **Compost Organic Waste:**\n   - Start a compost bin for food scraps and yard waste to create nutrient-rich soil amendments.\n\n6. **Dispose of Hazardous Waste Safely:**\n   - Take hazardous materials to designated disposal facilities.\n   - Do not mix hazardous waste with general waste or pour them down the drain.",
+    "actionParameters": {
+    
+    }
+  },
+  "displayName": "Trash Segeration",
+  "retrievalStrategy": "DEFAULT",
+  "languageCode": "en"
+}
