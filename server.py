@@ -9,12 +9,34 @@ app = Flask(__name__)
 
 # Initialize the Inference SDK Client for Roboflow
 CLIENT = InferenceHTTPClient(
-    api_url="https://detect.roboflow.com",
+    api_url="https://detect.roboflow.com/",
     api_key="wweQ6FzDKYe2XY0XlF3m"  # Your API key
 )
 
-# Model ID for your new model on Roboflow
-MODEL_ID = "yolov8-trash-detections/6"  # Your updated model ID and version
+# Model IDs for your models on Roboflow
+MODEL_ID_1 = "yolov8-trash-detections/6"  # Trash detection model
+MODEL_ID_2 = "food-waste-ihk1f/2"  # Food waste detection model
+
+BIN_MAPPING = {
+    'Bread': 'Food waste bin',
+    'Egg': 'Food waste bin',
+    'Orange': 'Food waste bin',
+    'Other waste bin': 'Other waste bin',
+    'Pear': 'Food waste bin',
+    'Recyclable bin': 'Recyclable bin',
+    'cabbage': 'Food waste bin',
+    'can': 'Recyclable bin',
+    'cardboard': 'Recyclable bin',
+    'drink carton': 'Recyclable bin',
+    'paper': 'Recyclable bin',
+    'plastic bag': 'Recyclable bin',
+    'plastic bottle': 'Recyclable bin',
+    'plastic bottle cap': 'Recyclable bin',
+    'pop tab': 'Recyclable bin',
+    'potato': 'Food waste bin'
+    # Add other items as needed
+}
+
 
 # Initialize the database
 def init_db():
@@ -53,25 +75,35 @@ def detect_trash(image):
     temp_image_path = "temp_image.jpg"
     cv2.imwrite(temp_image_path, image)
 
+    counts = {}
+
     try:
-        # Perform inference using the Roboflow client with the new model ID
-        result = CLIENT.infer(temp_image_path, model_id=MODEL_ID)
+        # Perform inference using the first model (general trash)
+        result1 = CLIENT.infer(temp_image_path, model_id=MODEL_ID_1)
 
-        # Initialize counts dictionary
-        counts = {}
-
-        # Process detections
-        if 'predictions' in result:
-            for prediction in result['predictions']:
+        # Process detections from the first model
+        if 'predictions' in result1:
+            for prediction in result1['predictions']:
                 class_name = prediction['class']
                 counts[class_name] = counts.get(class_name, 0) + 1
 
-        return counts
+    except Exception as e:
+        print("Error during inference with model 1:", e)
+
+    try:
+        # Perform inference using the second model (food waste)
+        result2 = CLIENT.infer(temp_image_path, model_id=MODEL_ID_2)
+
+        # Process detections from the second model
+        if 'predictions' in result2:
+            for prediction in result2['predictions']:
+                class_name = prediction['class']
+                counts[class_name] = counts.get(class_name, 0) + 1
 
     except Exception as e:
-        # Log the error and handle gracefully
-        print("Error during inference:", e)
-        return {}  # Return an empty dictionary if an error occurs
+        print("Error during inference with model 2:", e)
+
+    return counts
 
 @app.route('/process_frame', methods=['POST'])
 def process_frame():
@@ -90,19 +122,29 @@ def process_frame():
     trash_counts = detect_trash(image)
 
     if trash_counts:
-        # Prepare the suggestion based on waste types
-        waste_types = set(trash_counts.keys())
-        suggestion = "Please dispose of the following items: " + ", ".join(waste_types)
-        # Prepare the trash items string with counts
-        trash_type = ", ".join(f"{item_name} x{count}" for item_name, count in trash_counts.items())
+        # Map detected trash types to bin types and aggregate counts
+        bin_types_counts = {}
+        item_suggestions = []
+
+        for trash_type, count in trash_counts.items():
+            bin_type = BIN_MAPPING.get(trash_type, 'Other waste bin')  # Default to 'Other waste bin' if not found
+            bin_types_counts[bin_type] = bin_types_counts.get(bin_type, 0) + count
+            item_suggestions.append(f"{trash_type} (Bin: {bin_type})")
+
+        # Prepare the suggestion based on bin types
+        item_suggestions_str = ", ".join(item_suggestions)
+        suggestion = "Detected items: " + item_suggestions_str
+
+        # For display purposes, list the bins detected
+        bins_detected = item_suggestions_str
     else:
-        trash_type = "No identifiable trash items detected."
+        bins_detected = "No identifiable trash items detected."
         suggestion = "No disposal needed."
 
     # Store counts in the database
     store_trash_counts(trash_counts)
 
-    return jsonify({"trash_type": trash_type, "suggestion": suggestion})
+    return jsonify({"bins_detected": bins_detected, "suggestion": suggestion})
 
 @app.route('/get_trash_counts', methods=['GET'])
 def get_trash_counts():
