@@ -1,5 +1,5 @@
 
-# Safai Saathi - Trash Segregation Information Chat Bot
+# Safai Saathi - Trash Type Recognition
 
 Welcome to **Safai Saathi** – your companion for cleaner, greener waste management! This project uses the power of AI to simplify waste segregation and help users make environmentally responsible choices. Safai Saathi is designed to recognize types of trash, guide proper disposal, and provide insights on waste management best practices. 
 
