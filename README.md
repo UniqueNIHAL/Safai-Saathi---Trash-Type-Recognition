@@ -56,7 +56,7 @@ The system uses a blend of computer vision and machine learning to analyze image
    - Make sure you have access to Google Cloud services like Vertex AI.
    - Set up your credentials as per the Google Cloud setup instructions.
 
-4. **Run the Chatbot**
+4. **Run the Server**
 
    ```bash
    python server.py
