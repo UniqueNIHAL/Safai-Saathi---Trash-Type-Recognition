@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Trash Recognition</title>
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            background-image: url('bg6.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
+
+        /* Fade In Animation for body */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Header Banner Styling */
+        header {
+            width: 100%;
+            height: 200px; /* Adjust height based on your banner design */
+            background-image: url('canva-banner2.png'); /* Path to your Canva banner */
+            background-size: cover; /* Ensure the image covers the full header */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; /* Prevent the image from repeating */
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        /* Subtitle */
+        .subtitle {
+            margin-top: 0px;
+            font-size: 1.3em;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            animation: fadeInSubtitle 2s ease-out forwards;
+        }
+
+        /* Fade In animation for subtitle */
+        @keyframes fadeInSubtitle {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Container */
+        #container {
+            width: 100%;
+            max-width: 1200px;  /* Increased max-width for a wider container */
+            padding: 2em;
+            background-color: rgba(255, 161, 93, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(118, 29, 7, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeIn 2s 1s forwards;
+            margin-left: auto;  /* Center the container */
+            margin-right: auto;
+        }
+
+        /* Video and Result Side-by-Side Container */
+        #videoResultContainer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: rgba(169, 153, 205, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(117, 96, 255, 0.1);
+            opacity: 0;
+            animation: fadeIn 2s 1.5s forwards;
+            height: 60vh; /* Adjusted height to make the container smaller */
+        }
+
+        /* Video styling */
+        #video {
+            width: 65%;  /* Keep the width the same */
+            height: 100%; /* Set video height to fill the container height */
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease;
+        }
+
+        /* Hover effect for video */
+        #video:hover {
+            transform: scale(1.05); /* Slight zoom effect */
+        }
+
+        /* Result display */
+        #result {
+            width: 30%;  /* Keep the width the same */
+            font-size: 1.2em;
+            color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f0f4f8;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-left: 20px;
+            opacity: 0;
+            animation: fadeIn 2s 1.5s forwards;
+        }
+
+        /* Chart container styling */
+        #chartContainer {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            width: 100%;  /* Full width */
+            opacity: 0;
+            animation: fadeIn 2s 2s forwards;
+        }
+
+        /* Hover effect for chart container */
+        #chartContainer:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1.1em;
+            }
+
+            #result {
+                font-size: 1.1em;
+                padding: 15px;
+            }
+
+            #container {
+                padding: 1.5em;
+            }
+
+            #video {
+                width: 100%; /* Full width for smaller screens */
+                height: 50vh;
+            }
+
+            #result {
+                width: 100%; /* Full width for smaller screens */
+                margin-left: 0;
+                margin-top: 20px;
+            }
+
+            #videoResultContainer {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+    </style>
+
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header Banner -->
+    <header>
+    </header>
+
+    <!-- Subtitle -->
+    <div class="subtitle">
+        Identify and manage trash items effectively with AI-powered detection
+    </div>
+
+    <!-- Main content container -->
+    <div id="container">
+        <div id="videoResultContainer">
+            <video id="video" autoplay playsinline></video>
+            <div id="result">Waiting for detection...</div>
+        </div>
+
+        <div id="chartContainer">
+            <canvas id="trashChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const resultDisplay = document.getElementById('result');
+
+        // Access the device camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                console.error("Camera access denied:", error);
+            }
+        }
+
+        // Capture frame and send it to the server
+        async function captureFrame() {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL("image/jpeg");
+
+            // Send frame to server
+            const response = await fetch('/process_frame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            });
+            const result = await response.json();
+
+            // Display the result
+            resultDisplay.innerHTML = ` 
+                <h3>Detected: ${result.trash_type}</h3>
+                <p>Suggestion: ${result.suggestion}</p>
+            `;
+
+            // Update the chart with new data
+            updateChart();
+        }
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('trashChart').getContext('2d');
+        let trashChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [], // Will be populated dynamically
+                datasets: [{
+                    label: '# of Items Detected',
+                    data: [], // Will be populated dynamically
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Fetch trash counts and update the chart
+        async function updateChart() {
+            const response = await fetch('/get_trash_counts');
+            const counts = await response.json();
+
+            // Update chart data
+            trashChart.data.labels = Object.keys(counts);
+            trashChart.data.datasets[0].data = Object.values(counts);
+            trashChart.update();
+        }
+
+        // Start the camera and process frames at intervals
+        startCamera();
+        setInterval(captureFrame, 5000); // Capture a frame every 5 seconds
+    </script>
+</body>
+</html>
