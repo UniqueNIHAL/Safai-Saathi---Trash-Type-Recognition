@@ -1,6 +1,3 @@
-Here's a friendly, human-readable README for your project:
-
----
 
 # Safai Saathi - Trash Segregation Information Chat Bot
 
