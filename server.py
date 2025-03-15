@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Initialize the Inference SDK Client for Roboflow
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com/",
-    api_key="wweQ6FzDKYe2XY0XlF3m"  # Your API key
+    api_key="y0QneCYytfLY0KSVZxEA"  # Your API key
 )
 
 # Model IDs for your models on Roboflow

@@ -86,36 +86,4 @@ This project is licensed under the APACHE License.
 
 ---
 
-## Citations
-1) 
-@misc{
-                            food-waste-ihk1f_dataset,
-                            title = { food-waste Dataset },
-                            type = { Open Source Dataset },
-                            author = { workspace },
-                            howpublished = { \url{ https://universe.roboflow.com/workspace-x0bbq/food-waste-ihk1f } },
-                            url = { https://universe.roboflow.com/workspace-x0bbq/food-waste-ihk1f },
-                            journal = { Roboflow Universe },
-                            publisher = { Roboflow },
-                            year = { 2024 },
-                            month = { may },
-                            note = { visited on 2024-11-10 },
-                            }
-
-2)
-@misc{
-                            yolov8-trash-detections_dataset,
-                            title = { yolov8-trash-detections Dataset },
-                            type = { Open Source Dataset },
-                            author = { FYP },
-                            howpublished = { \url{ https://universe.roboflow.com/fyp-bfx3h/yolov8-trash-detections } },
-                            url = { https://universe.roboflow.com/fyp-bfx3h/yolov8-trash-detections },
-                            journal = { Roboflow Universe },
-                            publisher = { Roboflow },
-                            year = { 2023 },
-                            month = { dec },
-                            note = { visited on 2024-11-10 },
-                            }
-
-
-## Thank you for joining us on this journey toward a cleaner, greener planet! Let's work together to make waste management easier and more impactful. 🌎
+Thank you for joining us on this journey toward a cleaner, greener planet! Let's work together to make waste management easier and more impactful. 🌎
